@@ -5,11 +5,12 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
+import os
 import json
 import codecs
-import pymongo
+import requests
 from pymongo import MongoClient
-from douban_movie_spider.items import MovieItem
+from douban_movie_spider.settings import IMAGES_STORE
 
 
 # 将爬取的内容保存到文件中
@@ -19,7 +20,7 @@ class SaveFilePipeline(object):
         self.res_list = []
         super().__init__()
 
-    def process_item(self, item, spider) -> MovieItem:
+    def process_item(self, item, spider):
         res = dict(item)
         # print(str)
         self.res_list.append(res)
@@ -37,6 +38,23 @@ class SaveFilePipeline(object):
         file.close()
 
 
+# 保存电影海报图片
+class SaveImgPipeline(object):
+
+    def process_item(self, item, spider):
+        file_path = "{}//{}_{}.jpg".format(IMAGES_STORE, item['rank'], item['title'])
+
+        if os.path.exists(file_path):
+            pass
+        else:
+            print("图片将保存到 ==> " + file_path)
+            with open(file_path, "wb") as f:
+                req = requests.get(item['image_url'])
+                f.write(req.content)
+        item['save_path'] = file_path
+        return item
+
+
 # 将爬取的内容保存到mongoDB中
 class Save2MongoPipeline(object):
 
@@ -52,7 +70,7 @@ class Save2MongoPipeline(object):
         # 先清除之前保存的数据
         self.top250.delete_many({})
 
-    def process_item(self, item, spider) -> MovieItem:
+    def process_item(self, item, spider):
         res = dict(item)
         self.top250.insert_one(res)
         return item

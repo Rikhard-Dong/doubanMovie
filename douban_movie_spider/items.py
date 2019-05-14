@@ -9,7 +9,17 @@ import scrapy
 
 
 class MovieItem(scrapy.Item):
+    # 电影标题
     title = scrapy.Field()
+    # 豆瓣评分
     star = scrapy.Field()
+    # 豆瓣排名
     rank = scrapy.Field()
+    # 描述
     quote = scrapy.Field()
+    # 豆瓣详情页
+    url = scrapy.Field()
+    # 电影海报图片url
+    image_url = scrapy.Field()
+    # 电影海报保存到本地的path
+    save_path = scrapy.Field()

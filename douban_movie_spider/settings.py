@@ -79,7 +79,9 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'douban_movie_spider.pipelines.SaveFilePipeline': 300,
+    'douban_movie_spider.pipelines.Save2MongoPipeline': 200,
+    'douban_movie_spider.pipelines.SaveFilePipeline': 300,
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -78,7 +78,9 @@ class DoubanSpider(scrapy.Spider):
 通过对网页源代码的分析, 我们发现我们所要获取的信息都在class为item中的div中, 遍历这些div,
 获取相关数据.
 
-每一页有有25部电影数据, 当这一页的数据获取完成后, 接着爬取下一页的数据
+每一页有有25部电影数据, 当这一页的数据获取完成后, 接着爬取下一页的数据.
+
+另外也可以通过xpath解析网页.
 
 ### 运行爬虫
 在terminal中输入**scrapy crawl douban**, 执行
@@ -87,3 +89,25 @@ class DoubanSpider(scrapy.Spider):
 ```
 scrapy crawl douban -o top250.json -s FEED_EXPORT_ENCODING=UTF-8
 ```
+
+## 更加优雅的保存数据方式
+前面提到了使用-o直接将结果输出到文件中, 其实利用pipeline可以更优雅的实现数据的保存
+
+### 编写pipeline类, 将数据保存到文件中
+参考pipelines.py中的SaveFilePipeline类, 实现了几个方法
+1. __init__()方法
+
+    初始化一些参数, 比如可以在这里打开文件或者打开数据库连接, 不过也可以在oen_spider中进行这些操作
+
+2. open_spider()方法
+    
+    同上    
+   
+3. process_item()方法
+
+    处理爬取到的item, 如果只有一个pipeline, 则可以不用return item, 如果有多个pipeline的话, 则需要return, 否则优先度低的pipeline获取到item为None, 会报错.
+    简单来说就是一个流水线操作, 如果上流断流了, 下流就没有数据了
+    
+4. close_spider()方法
+    
+    爬取结束, 可以关闭文件或者数据库连接等.

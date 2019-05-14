@@ -12,7 +12,7 @@ class DoubanSpider(scrapy.Spider):
             movie = MovieItem()
             rank = item.css('div.pic em::text').extract_first()
             title = item.css('div.info div.hd span.title::text').extract_first()
-            star = item.css('duv.star span.rating_num::text').extract_first()
+            star = item.css('div.star span.rating_num::text').extract_first()
             quote = item.css('p.quote span.inq::text').extract_first()
             movie['rank'] = rank
             movie['title'] = title

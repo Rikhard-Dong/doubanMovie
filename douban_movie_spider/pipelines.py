@@ -7,17 +7,19 @@
 
 import json
 import codecs
+import pymongo
+from pymongo import MongoClient
+from douban_movie_spider.items import MovieItem
 
 
 # 将爬取的内容保存到文件中
 class SaveFilePipeline(object):
 
     def __init__(self) -> None:
-        print("======== 将爬取结果保存到文件中 =======")
         self.res_list = []
         super().__init__()
 
-    def process_item(self, item, spider):
+    def process_item(self, item, spider) -> MovieItem:
         res = dict(item)
         # print(str)
         self.res_list.append(res)
@@ -27,7 +29,6 @@ class SaveFilePipeline(object):
         pass
 
     def close_spider(self, spider):
-        print("====== 爬取结束 ======")
         # print(self.res_list)
         # 打开文件, w+ 读写, 如果文件不存在会被创建, 存在则内容会被清空会重写写入
         file = codecs.open(filename="douban_movie_top_250.json", mode='w+', encoding='utf-8')
@@ -40,8 +41,24 @@ class SaveFilePipeline(object):
 class Save2MongoPipeline(object):
 
     def __init__(self) -> None:
-        super().__init__()
-        print("======== 将爬取结果保存到MongoDB中 =======")
+        # 连接
+        self.client = MongoClient(host='localhost', port=27017)
+        # 如果设置有权限, 则需要先登录
+        # db_auth = self.client.admin
+        # db_auth.authenticate('root', 'root')
+        # 需要保存到的collection
+        self.col = self.client['douban_movie']
+        self.top250 = self.col.top250
+        # 先清除之前保存的数据
+        self.top250.delete_many({})
 
-    def process_item(self, item, spider):
+    def process_item(self, item, spider) -> MovieItem:
+        res = dict(item)
+        self.top250.insert_one(res)
         return item
+
+    def open_spider(self, spider):
+        pass
+
+    def close_spider(self, spider):
+        self.client.close()

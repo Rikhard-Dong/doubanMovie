@@ -1,6 +1,8 @@
 # 豆瓣电影 TOP250
 > 使用scrapy爬取[豆瓣电影top250](https://movie.douban.com/top250)
 
+## 安装scrapy
+不多介绍
 ## 创建项目
 首先在终端使用scrapy startproject 命令创建scrapy创建spider项目
 ```
@@ -111,3 +113,18 @@ scrapy crawl douban -o top250.json -s FEED_EXPORT_ENCODING=UTF-8
 4. close_spider()方法
     
     爬取结束, 可以关闭文件或者数据库连接等.
+
+### 配置
+编写完pipeline类之后需要在settings py中进行配置, 可以配置多个pipeline, 300为优先级, 值越低, 优先级越高, 范围在(0, 1000)内
+```python
+ITEM_PIPELINES = {
+    'douban_movie_spider.pipelines.SaveFilePipeline': 300,
+}
+```
+
+## 将结果保存到mongodb数据库中
+
+### 安装pymongo
+> pip install pymongo
+### 编写Save2MongoPipeline类将数据保存到mongodb中
+与保存文件类型, 初始化的时候初始化mongo连接, 在process_item函数将数据保存到mongodb中
